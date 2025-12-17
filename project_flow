@@ -1,0 +1,33 @@
+digraph "项目开发流程示例" {
+	fontname=Arial
+	start [label="项目启动" fillcolor=lightgreen shape=ellipse style=filled]
+	subgraph cluster_req {
+		color=blue fontsize=14 label="需求分析阶段"
+		req_gather [label="收集需求" fillcolor=lightyellow shape=rectangle style=filled]
+		req_analyze [label="分析需求" fillcolor=lightyellow shape=rectangle style=filled]
+		req_review [label="评审需求" fillcolor=lightyellow shape=rectangle style=filled]
+		req_gather -> req_analyze
+		req_analyze -> req_review
+	}
+	subgraph cluster_design {
+		color=green fontsize=14 label="设计阶段"
+		arch_design [label="架构设计" fillcolor=lightblue shape=rectangle style=filled]
+		ui_design [label="界面设计" fillcolor=lightblue shape=rectangle style=filled]
+		design_review [label="设计评审" fillcolor=lightblue shape=rectangle style=filled]
+		arch_design -> design_review
+		ui_design -> design_review
+	}
+	req_review -> arch_design
+	req_review -> ui_design
+	subgraph cluster_dev {
+		color=orange fontsize=14 label="开发阶段"
+		coding [label="编码实现" fillcolor=lightpink shape=rectangle style=filled]
+		testing [label="单元测试" fillcolor=lightpink shape=rectangle style=filled]
+		coding -> testing
+	}
+	design_review -> coding
+	deploy [label="部署上线" fillcolor=lightgray shape=rectangle style=filled]
+	end [label="项目结束" fillcolor=lightcoral shape=ellipse style=filled]
+	testing -> deploy
+	deploy -> end
+}

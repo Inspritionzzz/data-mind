@@ -1,0 +1,9 @@
+// 简单流程图
+digraph {
+	rankdir=TB size="8,8"
+	A [label="开始"]
+	B [label="处理步骤"]
+	C [label="结束"]
+	A -> B
+	B -> C
+}
