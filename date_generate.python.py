@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 # 设置目标年份
-year = 2025
+year = 2026
 
 # 获取当年第一天
 start_date = datetime(year, 1, 1)
