@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>经纪业务线个人客户S码编制流程</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface: #FFFFFF;
+  --surface-muted: #F7F7F8;
+  --text: #171717;
+  --text-muted: #52525B;
+  --border: rgba(23, 23, 23, 0.12);
+  --brand: #4B3FE3;
+  --brand-soft: #F2F7FF;
+  --brand-soft-strong: #E5EAFF;
+  --brand-text: #1A1759;
+  --brand-on: #FFFFFF;
+  --chart-series-1: #3C2ECA;
+  --chart-series-2: #A9AEFF;
+  --chart-series-3: #6F6FFF;
+  --chart-series-4: #22A5F7;
+  --chart-other: #D3D4DA;
+  --accent: #27D2BF;
+  --accent-soft: #EAFBF8;
+  --accent-text: #0F766E;
+  --success: #1DC981;
+  --warning: #EFAA17;
+  --danger: #E8463A;
+  --radius: 8px;
+  --radius-card: 12px;
+  --radius-full: 999px;
+  --spacer-4: 4px;
+  --spacer-8: 8px;
+  --spacer-12: 12px;
+  --spacer-16: 16px;
+  --spacer-20: 20px;
+  --spacer-24: 24px;
+  --font-sans: "SF Pro Text", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-metric: "Inter", "SF Pro Text", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-strong: 600;
+  --text-caption: 12px/18px;
+  --text-body: 14px/20px;
+  --text-title: 16px/24px;
+  --text-code: 13px/20px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --surface: #FFFFFF;
+    --surface-muted: #F7F7F8;
+    --text: #171717;
+    --text-muted: #52525B;
+    --border: rgba(23, 23, 23, 0.12);
+    --brand: #4B3FE3;
+    --brand-soft: #F2F7FF;
+    --brand-soft-strong: #E5EAFF;
+    --brand-text: #1A1759;
+    --brand-on: #FFFFFF;
+  }
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #FFFFFF;
+  color: var(--text);
+  font: var(--weight-regular) var(--text-body) var(--font-sans);
+  padding: var(--spacer-24);
+}
+
+.widget {
+  color: var(--text);
+  background: transparent;
+  font: var(--weight-regular) var(--text-body) var(--font-sans);
+  letter-spacing: 0;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.sequenceCard {
+  box-sizing: border-box;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--spacer-20);
+}
+
+.sequenceHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--spacer-16);
+}
+
+.sequenceTitleGroup {
+  display: grid;
+  gap: var(--spacer-4);
+  min-width: 0;
+}
+
+.sequenceTitle {
+  margin: 0;
+  color: var(--text);
+  font: var(--weight-medium) var(--text-title) var(--font-sans);
+}
+
+.sequenceBadge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 var(--spacer-12);
+  color: var(--brand-text);
+  background: var(--surface-muted);
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+  border-radius: var(--radius-full);
+  font: var(--weight-medium) var(--text-caption) var(--font-sans);
+}
+
+.sequenceCanvas {
+  margin-top: var(--spacer-16);
+  overflow: hidden;
+  background: var(--surface-muted);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: var(--radius);
+}
+
+.sequenceSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.participantBox {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--border) 92%, transparent);
+  stroke-width: 1;
+}
+
+.participant[data-role="focus"] .participantBox {
+  fill: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 72%, var(--border));
+}
+
+.participant[data-role="external"] .participantBox {
+  stroke: color-mix(in srgb, var(--text-muted) 42%, var(--border));
+}
+
+.participantLabel {
+  fill: var(--text);
+  font: var(--weight-medium) var(--text-body) var(--font-sans);
+}
+
+.participantCaption {
+  fill: var(--text-muted);
+  font: var(--weight-regular) var(--text-caption) var(--font-sans);
+}
+
+.participant[data-role="focus"] .participantLabel {
+  fill: var(--brand-text);
+}
+
+.participant[data-role="focus"] .participantCaption {
+  fill: var(--brand);
+}
+
+.lifeline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text-muted) 42%, transparent);
+  stroke-width: 1.2;
+  stroke-dasharray: 5 7;
+  stroke-linecap: round;
+}
+
+.activation {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--border) 92%, transparent);
+  stroke-width: 1;
+}
+
+.activation[data-role="focus"] {
+  fill: color-mix(in srgb, var(--brand) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 62%, var(--border));
+}
+
+.messagePath {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+}
+
+.messagePath[data-type="return"] {
+  stroke-dasharray: 7 6;
+}
+
+.messagePath[data-focus="true"] {
+  stroke: var(--brand);
+  stroke-width: 1.8;
+}
+
+.arrowHeadPath {
+  fill: var(--text-muted);
+}
+
+.arrowHeadPath[data-focus="true"] {
+  fill: var(--brand);
+}
+
+.labelBg {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--border) 76%, transparent);
+}
+
+.labelBg[data-focus="true"] {
+  fill: var(--brand-soft);
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.messageLabel {
+  fill: var(--text);
+  font: var(--weight-medium) var(--text-caption) var(--font-sans);
+}
+
+.messageLabel[data-focus="true"] {
+  fill: var(--brand-text);
+}
+
+.messageDesc {
+  fill: var(--text-muted);
+  font: var(--weight-regular) var(--text-caption) var(--font-mono);
+  opacity: 0.8;
+}
+
+.phaseChip {
+  fill: color-mix(in srgb, var(--surface-muted) 56%, var(--surface));
+  stroke: color-mix(in srgb, var(--border) 68%, transparent);
+}
+
+.phaseText {
+  fill: var(--text-muted);
+  font: var(--weight-medium) var(--text-caption) var(--font-sans);
+}
+
+.detailPanel {
+  margin-top: var(--spacer-16);
+  display: grid;
+  gap: var(--spacer-12);
+}
+
+.detailItem {
+  padding: var(--spacer-12) var(--spacer-16);
+  background: var(--surface-muted);
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
+  border-radius: var(--radius);
+}
+
+.detailStep {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: var(--brand-on);
+  background: var(--brand);
+  border-radius: var(--radius-full);
+  font: var(--weight-medium) var(--text-caption) var(--font-sans);
+  margin-right: var(--spacer-8);
+}
+
+.detailTitle {
+  color: var(--text);
+  font: var(--weight-medium) var(--text-body) var(--font-sans);
+  display: inline;
+}
+
+.detailDesc {
+  margin-top: var(--spacer-4);
+  color: var(--text-muted);
+  font: var(--weight-regular) var(--text-caption) var(--font-sans);
+  padding-left: 30px;
+}
+</style>
+</head>
+<body>
+<div class="widget" data-dynamic-ui-widget data-template="sequence-diagram">
+  <section class="sequenceCard" aria-label="S码编制流程时序图">
+    <div class="sequenceHeader">
+      <div class="sequenceTitleGroup">
+        <h3 class="sequenceTitle">经纪业务线个人客户S码编制流程</h3>
+      </div>
+      <div class="sequenceBadge"></div>
+    </div>
+    <div class="sequenceCanvas">
+      <svg class="sequenceSvg" viewBox="0 0 720 458" role="img"
+           aria-label="数仓、CCRM系统、下游系统之间的S码编制流程">
+        <defs>
+          <marker id="seqArr" viewBox="0 0 8 8" refX="7" refY="4"
+                  markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+            <path class="arrowHeadPath" d="M1 1 L7 4 L1 7 Z" />
+          </marker>
+          <marker id="seqArrF" viewBox="0 0 8 8" refX="7" refY="4"
+                  markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+            <path class="arrowHeadPath" data-focus="true" d="M1 1 L7 4 L1 7 Z" />
+          </marker>
+        </defs>
+
+        <!-- Phase chips -->
+        <rect class="phaseChip" x="48" y="18" width="148" height="26" rx="13" />
+        <text class="phaseText" x="122" y="36" text-anchor="middle">① 数据整合与下发</text>
+        <rect class="phaseChip" x="286" y="18" width="148" height="26" rx="13" />
+        <text class="phaseText" x="360" y="36" text-anchor="middle">② S码生成与回流</text>
+        <rect class="phaseChip" x="524" y="18" width="148" height="26" rx="13" />
+        <text class="phaseText" x="598" y="36" text-anchor="middle">③ 数据服务输出</text>
+
+        <!-- Participants -->
+        <g class="participant" data-role="focus" transform="translate(42 62)">
+          <rect class="participantBox" width="116" height="56" rx="8" />
+          <text class="participantLabel" x="58" y="24" text-anchor="middle">数仓</text>
+          <text class="participantCaption" x="58" y="44" text-anchor="middle">数据整合与服务</text>
+        </g>
+        <g class="participant" data-role="neutral" transform="translate(217 62)">
+          <rect class="participantBox" width="116" height="56" rx="8" />
+          <text class="participantLabel" x="58" y="24" text-anchor="middle">CCRM 系统</text>
+          <text class="participantCaption" x="58" y="44" text-anchor="middle">编码与关系维护</text>
+        </g>
+        <g class="participant" data-role="external" transform="translate(392 62)">
+          <rect class="participantBox" width="116" height="56" rx="8" />
+          <text class="participantLabel" x="58" y="24" text-anchor="middle">下游系统</text>
+          <text class="participantCaption" x="58" y="44" text-anchor="middle">数据消费方</text>
+        </g>
+
+        <!-- Lifelines -->
+        <path class="lifeline" d="M100 122 V418" fill="none" />
+        <path class="lifeline" d="M275 122 V418" fill="none" />
+        <path class="lifeline" d="M450 122 V418" fill="none" />
+
+        <!-- Activation bars -->
+        <rect class="activation" data-role="focus" x="91" y="136" width="18" height="260" rx="6" />
+        <rect class="activation" x="266" y="136" width="18" height="100" rx="6" />
+        <rect class="activation" x="441" y="376" width="18" height="20" rx="6" />
+
+        <!-- Messages -->
+        <path class="messagePath" data-focus="true" d="M109 146 H266" marker-end="url(#seqArrF)" fill="none" />
+        <rect class="labelBg" data-focus="true" x="134" y="132" width="107" height="24" rx="8" />
+        <text class="messageLabel" data-focus="true" x="187" y="149" text-anchor="middle">下发客户信息表</text>
+        <text class="messageDesc" x="187" y="172" text-anchor="middle">维护：客户号&lt;-&gt;一账通码</text>
+        <path class="messagePath" data-type="return" d="M266 226 H109" marker-end="url(#seqArr)" fill="none" />
+        <rect class="labelBg" x="127" y="212" width="120" height="24" rx="8" />
+        <text class="messageLabel" x="187" y="229" text-anchor="middle">回流S码映射关系</text>
+        <text class="messageDesc" x="187" y="252" text-anchor="middle">维护：客户号&lt;-&gt;一账通码&lt;-&gt;S码</text>
+        <path class="messagePath" d="M100 306 H132 V334 H100" marker-end="url(#seqArr)" fill="none" />
+        <rect class="labelBg" x="138" y="308" width="120" height="24" rx="8" />
+        <text class="messageLabel" x="198" y="323" text-anchor="middle">整合至ECIF表</text>
+        <text class="messageDesc" x="198" y="348" text-anchor="middle">仅整合，不维护编码</text>
+        <path class="messagePath" d="M109 386 H441" marker-end="url(#seqArr)" fill="none" />
+        <rect class="labelBg" x="228" y="372" width="94" height="24" rx="8" />
+        <text class="messageLabel" x="275" y="389" text-anchor="middle">提供数据服务</text>
+        <text class="messageDesc" x="275" y="412" text-anchor="middle">视图：客户号与S码映射关系</text>
+      </svg>
+    </div>
+
+    <!-- Detail panel -->
+    <div class="detailPanel">
+      <div class="detailItem">
+        <span class="detailStep">1</span>
+        <span class="detailTitle">数据整合与下发</span>
+        <div class="detailDesc">数仓基于统一账户系统，生成 CCRM 编码使用个人客户信息表（dwmdata.m_cust_ccrm_encode_used_indv_info），下发至 CCRM 系统。</div>
+      </div>
+      <div class="detailItem">
+        <span class="detailStep">2</span>
+        <span class="detailTitle">S码生成与回流</span>
+        <div class="detailDesc">CCRM 根据证件类型和号码分配S码，在 personal_cust_system_relation 表中维护&quot;客户号 ↔ S码&quot;映射，回流至数仓。</div>
+      </div>
+      <div class="detailItem">
+        <span class="detailStep">3</span>
+        <span class="detailTitle">数据整合与输出</span>
+        <div class="detailDesc">数仓将映射关系整合至 ECIF 客户关系表（dwmdata.m_cust_ecif_rela），仅做数据整合，不维护编码关系，为下游系统提供数据服务。</div>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
