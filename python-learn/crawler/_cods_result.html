@@ -1,0 +1,83 @@
+<!DOCTYPE html><html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>全国组织机构统一社会信用代码公示查询</title>
+
+<link href="/css/font-awesome/css/font-awesome.css?v=v2.0.4" type="text/css" rel="stylesheet">
+<link href="/css/iconfont.css" type="text/css" rel="stylesheet">
+<link href="/css/jump-page.css" type="text/css" rel="stylesheet">
+<link href="/css/css.css?v=v2.0.4" type="text/css" rel="stylesheet">
+<script type="text/javascript" src="/js/jquery-1.10.2.js?v=v2.0.4"></script>
+<script src="/js/gt.js"></script>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" media="screen">
+<style>
+body{ background:url("/images/bg-1.png") no-repeat; background-position:center 130px;}
+</style>
+<script type="text/javascript">
+var path = "";
+</script>
+<script>
+
+function sendData(){
+	//验证码
+	captchaObj2.onSuccess(function () {
+		var result = captchaObj2.getValidate();
+		if (!result) {
+			return alert('请完成验证');
+		}
+		
+		//var _keyword = $.trim('隰县供销合作社');
+		var _keyword = '隰县供销合作社';
+		var gc='&geetest_challenge='+result.geetest_challenge+"&geetest_validate="+result.geetest_validate+"&geetest_seccode="+result.geetest_seccode;
+		location.href = path+"/latest/searchR?q="+encodeURI(encodeURI(_keyword))+"&t=common&currentPage=1&searchToken=6a2bce95f8549c6b0562b3c2e081cffb"+gc;	
+	});
+	captchaObj2.verify();
+
+}
+
+var handler = function (captchaObj) {
+	captchaObj2=captchaObj;
+
+    captchaObj.onReady(function () {
+        sendData();
+    });
+
+};
+
+$(document).ready(function(){
+	var data = eval('({"success":1,"challenge":"98963eb96d2cb73adee43fa7035eae49","gt":"3a99b6b7637b498ac1f7c02bafa7e9bc"} )');
+    initGeetest({
+        // 以下 4 个配置参数为必须，不能缺少
+        gt: data.gt,
+        challenge: data.challenge,
+        offline: !data.success, // 表示用户后台检测极验服务器是否宕机
+        new_captcha: data.new_captcha, // 用于宕机时表示是新验证码的宕机
+
+        product: "bind", // 产品形式，包括：float，popup
+        width: "300px"
+        // 更多配置参数说明请参见：http://docs.geetest.com/install/client/web-front/
+    }, handler);
+  
+})
+
+//var t=setTimeout(sendData,1000)
+</script>
+
+<script>"undefined"==typeof CODE_LIVE&&(!function(e){var t={nonSecure:"57305",secure:"57219"},c={nonSecure:"http://",secure:"https://"},r={nonSecure:"127.0.0.1",secure:"gapdebug.local.genuitec.com"},n="https:"===window.location.protocol?"secure":"nonSecure";script=e.createElement("script"),script.type="text/javascript",script.async=!0,script.src=c[n]+r[n]+":"+t[n]+"/codelive-assets/bundle.js",e.getElementsByTagName("head")[0].appendChild(script)}(document),CODE_LIVE=!0);</script><script type="text/javascript" async="" src="https://gapdebug.local.genuitec.com:57219/codelive-assets/bundle.js"></script><script charset="UTF-8" async="" src="https://api.geetest.com/gettype.php?gt=3a99b6b7637b498ac1f7c02bafa7e9bc&amp;callback=geetest_1788171282020"></script><script charset="UTF-8" async="" src="https://static.geetest.com/static/js/fullpage.9.2.0-guwyxh.js"></script><script charset="UTF-8" src="https://api.geetest.com/get.php?gt=3a99b6b7637b498ac1f7c02bafa7e9bc&amp;challenge=98963eb96d2cb73adee43fa7035eae49&amp;lang=zh-cn&amp;pt=0&amp;client_type=web&amp;w=r)fKuAOfGnuFnc1i2)RAZ2SLXf8Tk5XQ9)kOQiO09VC60o2QXZC)WiV5QAYYiDVVf5j9bBQwF(bH5XXW03dMD7CPD1z4uNMyOuGT)w7lAcEUi9YyEwS3pJDVVhthwqT8xwzhQwAMCPPiECCnk8AQVKOYSkCgwHiTXTfIzO)CkT2yL0u7Q05px7wNHM81j)uPjENNoBeakoZvqcGv(d7jqAgDNEnhJLKr2R22QA6naJ0fFUs(uX7(qctQe4nIHagemZbU(uzjapQJGS2Pa14HBHVIETp7QEt8ekAU9BrCIND5oYLuA0T9B405T6I(46KjL1vJ5wOqeKKUtWlOYXjCZmVyBBr2VmIbWim0a4x2JefzOOmFhZ0ehImbOyePKwb6EpQiUrTzZbFQZMaQHTEz1eDpQ)(eBNs2GF0vuYreDp3gZb30JJ7LAxjNhRfFIll4hDfo)wRUl02WfXv9dGN0Jlj2XjBq3Bj2Pjxp5bqxI2G9r0zcXUyW7ZdBIZDe)7Ov(3N6ecldFfQDAAcbNhKZ9X0SxIrVTEQI3FDGXkzlQ1A7VzBAZhJvely0TwZLXHjw1UZsuSbKbBM7vhcySp)J9XP466xsyFitavcMROvanIQ3g4csTY7eHU8dc5MmIan5KSUTWQwlpjBlt23aMCqQmo(9BUsyLqxAXsC7NksuVazDoUNKfUJ6nunxu8irbEjVuWClbTyeQS(3clU81kC0RSdCazLG7m)yCm8og8DAF7j)6ov01qElPAHQOnnB5plDhcnxb9fAU)f0p3Sd316qWKwGohfN5We3ASbdmyqP0wj2kEGsKDw2Xtb3P8xHQ315ZfV7wVN8nst4o1852Z2G(x3v7xl5ofyZMjTBE(6USimtfWZ1Y(f4SLmkSpXN6usdMyyfFVPwoz0a5rQ1GY4ebcQzgp0ZIJ6M3w9ErQu0NBpNycocTYEWXZ9kUpHXYnzUKhG95mCFbnpzWOuDM4S123rK1nmg)ruhfonfmnZcLTl7Z)Yzi)Hn9nu5gh9ZIYLw3Hcjna8Yt55nqZeqCgji9bmivi(TrOh2qEow0DuDbHuAqE3yk(xRrXP1)J5pB081brNeEha((HLvVpQdlfjT)D7R3M6Nv2TRKDAYMJzjg2PgONg8mJl)psfm2SDqJlC)91dcc537095a51e9725b4e619bf3d540fffb205595bb20f955e6869501ccfa1a61ac4b7014529804f09ee34ce369f6aaaacc8ef14af89ef7a6456ef18875684796ff89ac74a324d7e730bbd42c8be75e81d918a47ccf26605137d14aa836bdc56623fb08858cf1a4d5719c76fd77a234343f45c06b9b590d8927e8eb8ed59ef6&amp;callback=geetest_1788171283023"></script><link href="https://static.geetest.com/static/wind/style_https.1.5.8.css" rel="stylesheet"><script charset="UTF-8" src="https://api.geevisit.com/ajax.php?gt=3a99b6b7637b498ac1f7c02bafa7e9bc&amp;challenge=98963eb96d2cb73adee43fa7035eae49&amp;lang=zh-cn&amp;pt=0&amp;client_type=web&amp;w=R465dIFLBdtCDbAWF)fqkK2h1QcwElsUpHkmS5OX1X0bIPhTyYJ9stfe)lmmDdTGiWhi3gVqZDhsv49g7BiqHdfbPAQcwR4Nj0FqDeU2)StXLkZRT(Or9LvnsqVpXLZy2VeZRKmDX)q5q68bJFmh00ihpxdePLc4oD80G0i6RW6AS31J(ph7H986VUKuQhBd2seqMZBYCeO5(FjmNfPFxmf2H4A9Rrb90RoMup0unJwLEcDG4EWtg0QIGF2nAvoNuJWw5dxEKkOWSJaNVnxprSjLgEgO)oUjXshSOGulRbyG8TMf38ga3sbzNTMbhtECloeJx(wzlZ3qdKRP76jmB5gUtp(3CGzZvfjxDM3yG6sdH9JNPiH2sj9jrD7raMDQjkb20bKqq2jmxa)abPAh(UocZlohSVYH2AoZhdr80sO4y(NaSRpkYG(59OboeY75nSId(Q68DpRCc0m(RzRJwJgo36mX7d6vNUSBsEubPZKVugxeW)3tAGIJ6VZrkTa(OHXbvAy1z1Ca(ZA8DLPLdpjarli3SUzGyHCrEkDMyGcgZY6wcrxXcPml6ajkoYk4GrCu2hFySD9PB4EBpnVLeu7fFoWelOshSuEbjW(CED7qSaVk2y9usSbuiydoIQV2eDZENU6Xc5hFVNmzCC500fQWzCa)SKXJMxg5THVSRetElDOgcize3T3VdBdZFlsCIrU0d)HGbo3GWQt5EGQ)rp1Gt9hqQUHj0AaO5v6XsLa(RwKtixtxgpnQnhDZaWyUZmqazJ6zsrbPDiH3x1dAyR1QdjoC6LHxipMdQQ33F)aBoJpsDhOA)WSeZWXwZ7GRDgPj)lcReYTxRVG3qvwoaRGDGTwOK1isQk4w1wK2lMNDXHu5NHV9uN4jicurYfUQQp1QEQE8YVA(sWkXim3AwSh4oau6HR)nyLbYviWwNUQwpyIJ1E7B2J)tevqd67zJgng1r30ZCYIt5rchVrI3Z9tmmpMBVnPRm6gGW(KxwLlK5jtcSSAAwz4hNPw)qfZ2wOVldqL5O8UumnSQKEH8WX4NJCTuJK7XKnqZfQm5tZAV8OYR)iGJD9qao(m(mxRWuGJOJooVS4oNIWD(WQNV3e2XMahdl4fscea4sB(u5J(lGbtY9YWM3u8g4DVx4HZd(H3ifro5z(5sY7MZu34umxdmoU8fu8ZcOCU4jtySlhEOw2ygXaNsoH5oV6tNdd2HwtF7I5MKhPzxTph3BJi5cw..&amp;callback=geetest_1788171285443"></script><script crossorigin="anonymous" charset="UTF-8" src="https://static.geetest.com/static/js/click.3.1.2.js"></script><script charset="UTF-8" src="https://api.geevisit.com/get.php?is_next=true&amp;type=click&amp;gt=3a99b6b7637b498ac1f7c02bafa7e9bc&amp;challenge=98963eb96d2cb73adee43fa7035eae49&amp;lang=zh-cn&amp;https=false&amp;protocol=https%3A%2F%2F&amp;offline=false&amp;product=embed&amp;api_server=api.geevisit.com&amp;isPC=true&amp;autoReset=true&amp;width=100%25&amp;callback=geetest_1788171287532"></script><script crossorigin="anonymous" charset="UTF-8" src="https://static.geetest.com/static/js/gct.b71a9027509bc6bcfef9fc6a196424f5.js"></script><link href="https://static.geetest.com/static/silver/style_https.1.5.4.css" rel="stylesheet"></head>
+<body data-genuitec-lp-enabled="false" data-genuitec-file-id="wc2-79" data-genuitec-path="/GlaucusSearch-V2/WebRoot/WEB-INF/jsp/search/jump_page.jsp">
+<div class="top" data-genuitec-lp-enabled="false" data-genuitec-file-id="wc2-79" data-genuitec-path="/GlaucusSearch-V2/WebRoot/WEB-INF/jsp/search/jump_page.jsp">
+    <div class="container">
+        <div class="word">
+            <div class="word-cnt">
+                <p>您正在查询“<strong>隰县供销合作社</strong>”</p>
+                <p><img src="/images/loader.gif"></p>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="tit text-center" onclick="sendData();"><button class="button sizeXS blue" style="width: 259px;">如果没有弹出验证码，请点击将重新加载</button></div>
+
+
+
+
+
+<div class="geetest_panel geetest_wind" style="display: block; opacity: 1;"><div class="geetest_panel_ghost"></div><div class="geetest_panel_box geetest_no_logo geetest_panelshowclick" style="display: block;"><div class="geetest_other_offline geetest_panel_offline"></div><div class="geetest_panel_loading" style="display: none;"><div class="geetest_panel_loading_icon"></div><div class="geetest_panel_loading_content">智能验证检测中</div></div><div class="geetest_panel_success" style="display: none;"><div class="geetest_panel_success_box"><div class="geetest_panel_success_show"><div class="geetest_panel_success_pie"></div><div class="geetest_panel_success_filter"></div><div class="geetest_panel_success_mask"></div></div><div class="geetest_panel_success_correct"><div class="geetest_panel_success_icon"></div></div></div><div class="geetest_panel_success_title">通过验证</div></div><div class="geetest_panel_error" style="display: none;"><div class="geetest_panel_error_icon"></div><div class="geetest_panel_error_title">网络超时</div><div class="geetest_panel_error_content">请点击此处重试</div><div class="geetest_panel_error_code"><div class="geetest_panel_error_code_text"></div></div></div><div class="geetest_panel_footer" style="display: none;"><div class="geetest_panel_footer_logo"></div><div class="geetest_panel_footer_copyright">由极验提供技术支持</div></div><div class="geetest_panel_next" style="display: block;"><div class="geetest_holder geetest_silver" style="width: 100%; display: block; opacity: 1;"><div class="geetest_widget"><div class="geetest_head"><div class="geetest_tips"><div class="geetest_tip_content"></div><div class="geetest_tip_img" aria-hidden="true" style="display: none;"></div></div><div class="geetest_atips"><div class="geetest_atip_content" style="margin-top: -7.5px;">请按<span class="geetest_mark">语序</span>依次点击下图文字:</div><div class="geetest_tip_text geetest_three"><div class="geetest_word1"><span class="">1</span></div><div class="geetest_word2"><span class="">2</span></div><div class="geetest_word3"><span class="">3</span></div><div class="geetest_word4"><span class="">4</span></div><div class="geetest_word5"><span class="">5</span></div><div class="geetest_word6"><span class="">6</span></div></div></div><div class="geetest_tip_space"></div></div><div class="geetest_table_box"><div class="geetest_window"><div class="geetest_item geetest_big_item" style="width: 95.8%; padding-bottom: 95.8%;"><div class="geetest_item_loading"><div class="geetest_item_loading_icon"></div><div class="geetest_item_loading_tip">加载中...</div></div><div class="geetest_item_wrap" style="background-image: url(&quot;https://static.geetest.com/captcha_v3/batch/v3/152036/2026-08-31T17/phrase/7b617105380e45318efb2396cd04de8b.jpg?challenge=98963eb96d2cb73adee43fa7035eae49&quot;); background-size: 100%; background-repeat: no-repeat;"><img class="geetest_item_img" aria-hidden="true" style="right: 0px; top: 0px; width: 100%; height: 112%;"></div></div></div><div class="geetest_result_tip"></div></div><div class="geetest_panel"><div class="geetest_small" tabindex="-1" style="outline: none; font-size: 12px;"><a class="geetest_close" href="javascript:;" aria-label="关闭验证" role="button" tabindex="-1"><div class="geetest_close_tip">关闭验证</div></a><a class="geetest_refresh" href="javascript:;" aria-label="刷新验证" role="button" tabindex="-1"><div class="geetest_refresh_tip">刷新验证</div></a><a class="geetest_feedback" tabindex="-1" style="display: none;"><div class="geetest_feedback_tip">帮助反馈</div></a><a class="geetest_voice"><div class="geetest_voice_tip"></div></a></div><a class="geetest_commit geetest_disable" href="javascript:;" aria-label="确认" role="button" tabindex="0"><div class="geetest_commit_tip">确认</div></a></div></div></div></div></div></div></body></html>

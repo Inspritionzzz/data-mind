@@ -70,6 +70,9 @@ instance/
 work/
 work/*.xlsx
 
+financial-freedom/bilibili_lottery_bot/data
+financial-freedom/xiaohongshu_lottery_bot/data
+
 .webassets-cache
 
 # Scrapy stuff:
