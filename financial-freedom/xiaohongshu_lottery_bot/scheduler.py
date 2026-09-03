@@ -50,6 +50,14 @@ def run_once():
                 logger.error('无法获取自身 user_id，本轮任务终止')
                 return 0
             followings = collector.get_followings(self_uid)
+            if not followings:
+                logger.error('关注列表为空，本轮任务终止')
+                return 0
+
+            # 风控预检：风控中直接终止，不浪费整轮探测时间
+            if not collector.precheck_risk(followings[0]['user_id']):
+                return 0
+
             cutoff = (time.time() - config.NEW_DYNAMIC_DAYS * 86400) * 1000
 
             # 轮换批次探测：单轮最多 MAX_PROBE_PER_RUN 人，从上次结束位置继续
@@ -66,6 +74,10 @@ def run_once():
 
             active_users = []
             for i, user in enumerate(batch):
+                # 浏览器存活检测：窗口被关闭则立即终止，避免空转
+                if not browser.is_alive():
+                    logger.error('浏览器已关闭（窗口可能被手动关闭），本轮任务终止')
+                    return 0
                 logger.info('探测 %d/%d: %s(uid=%s)',
                             i + 1, len(batch), user['nickname'], user['user_id'])
                 try:
@@ -73,6 +85,9 @@ def run_once():
                 except RiskControlError:
                     raise
                 except Exception as e:
+                    if 'has been closed' in str(e) or not browser.is_alive():
+                        logger.error('浏览器已关闭，本轮任务终止')
+                        return 0
                     logger.warning('探测 %s 失败: %s', user['user_id'], e)
                     continue
                 if latest_ts >= cutoff and notes:

@@ -51,6 +51,13 @@ class XhsBrowser:
         except Exception as e:
             logger.warning('关闭浏览器异常: %s', e)
 
+    def is_alive(self):
+        """检测浏览器/页面是否仍存活（窗口被手动关闭后返回 False）"""
+        try:
+            return bool(self.page and self.page.evaluate('() => true'))
+        except Exception:
+            return False
+
     # ---------- 登录 ----------
     def is_logged_in(self):
         """

@@ -10,14 +10,14 @@ from datetime import datetime
 
 try:
     from . import config
-    from .auth import BiliAuth
+    from .auth import WeiboAuth
     from .classifier import Classifier
     from .collector import Collector
     from .executor import Executor
     from .notifier import Notifier
 except ImportError:  # 支持在包内直接 python main.py 运行
     import config
-    from auth import BiliAuth
+    from auth import WeiboAuth
     from classifier import Classifier
     from collector import Collector
     from executor import Executor
@@ -35,16 +35,15 @@ def run_once():
     logger.info('开始本轮抽奖任务 %s', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
     # 登录层
-    auth = BiliAuth()
+    auth = WeiboAuth()
     if not auth.login():
         logger.error('登录失败，本轮任务终止')
         return 0
 
     collector = Collector(auth)
+    executor = Executor(auth)
     classifier = Classifier()
     notifier = Notifier()
-    # 代理抽奖（工具人专栏）需要拉目标 UP 动态并对子抽奖查重
-    executor = Executor(auth, collector=collector, notifier=notifier)
     summary = []
     try:
         # 采集层：全量关注列表 → 探测新动态 → 仅采集有新动态用户的最新10条
@@ -52,9 +51,9 @@ def run_once():
         cutoff = time.time() - config.NEW_DYNAMIC_DAYS * 86400
         active_friends = []
         for friend in friends:
-            latest_ts, items = collector.probe_latest(friend['mid'])
-            if latest_ts >= cutoff and items:
-                friend['items'] = items
+            latest_ts, statuses = collector.probe_latest(friend['uid'])
+            if latest_ts >= cutoff and statuses:
+                friend['statuses'] = statuses
                 active_friends.append(friend)
             time.sleep(random.uniform(*config.PROBE_INTERVAL))
         logger.info('关注 %d 人中 %d 人近 %d 天有新动态',
@@ -70,15 +69,11 @@ def run_once():
                 logger.warning('已达单次运行上限 %d，剩余跳过', config.MAX_ACTIONS_PER_RUN)
                 break
             if notifier.is_participated(lottery['dynamic_id']):
-                logger.info('动态 %s 已参与过，跳过', lottery['dynamic_id'])
+                logger.info('微博 %s 已参与过，跳过', lottery['dynamic_id'])
                 continue
             result = executor.participate(lottery)
             notifier.record(lottery, result)
             summary.append((lottery, result))
-            # 代理抽奖的子抽奖（专栏里各 UP 的目标动态）逐条入库，用于精确查重
-            for sub_lot, sub_res in result.get('sub_lotteries') or []:
-                notifier.record(sub_lot, sub_res)
-                summary.append((sub_lot, sub_res))
             joined += 1
 
         # 通知层

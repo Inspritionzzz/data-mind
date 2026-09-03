@@ -3,7 +3,7 @@
 识别过滤层 (Filter / Classifier)
     判断动态是否为抽奖动态 → 提取参与条件
 识别依据（优先级从高到低）：
-    1. 官方抽奖：新版结构 modules.module_dynamic.additional.type == ADDITIONAL_TYPE_LOTTERY
+    1. 官方抽奖：微博抽奖平台发起的动态，正文/附加信息带抽奖标识
     2. 文本关键词：正文命中抽奖关键词
 """
 import logging
@@ -17,11 +17,23 @@ except ImportError:  # 支持在包内直接 python main.py 运行
 logger = logging.getLogger(__name__)
 
 
-def _has_official_lott(additional):
-    """判断是否为 B 站官方抽奖动态（additional 为抽奖组件）"""
-    if not isinstance(additional, dict):
-        return False
-    return additional.get('type') == 'ADDITIONAL_TYPE_LOTTERY' or 'lottery' in additional
+def _has_official_lottery(status):
+    """判断是否为微博官方抽奖动态（微博抽奖平台发起）"""
+    # 检查附加信息中的抽奖标识
+    # 微博官方抽奖动态通常有 lottery 相关字段或来自"微博抽奖平台"
+    text = status.get('text_raw') or status.get('text') or ''
+    if '微博抽奖平台' in text or '抽奖平台' in text:
+        return True
+    # 检查用户是否为抽奖平台官方账号
+    user = status.get('user') or {}
+    if user.get('screen_name') == '微博抽奖平台':
+        return True
+    # 检查附加信息
+    # 微博可能在某些字段中标记抽奖
+    for key in ('lottery', 'lottery_info', 'prize_info'):
+        if status.get(key):
+            return True
+    return False
 
 
 def _parse_conditions(text, is_official=False):
@@ -54,31 +66,6 @@ def _parse_deadline(text):
     return ''
 
 
-def _is_proxy_account(uname, uid):
-    """判断动态发布者是否为代理抽奖账号（工具人）"""
-    return (uname in config.PROXY_ACCOUNTS
-            or str(uid) in config.PROXY_ACCOUNT_UIDS)
-
-
-def _extract_article(dynamic):
-    """
-    从代理动态中提取专栏链接（major.article）
-    :return: {'id','jump_url','title'} 或 None
-    """
-    item = dynamic.get('item') or {}
-    md = (item.get('modules') or {}).get('module_dynamic') or {}
-    article = ((md.get('major') or {}).get('article')) or {}
-    if article.get('id'):
-        jump_url = article.get('jump_url') or ''
-        # 原始格式为协议相对地址 //www.bilibili.com/read/cvxxx/
-        if jump_url.startswith('//'):
-            jump_url = 'https:' + jump_url
-        return {'id': str(article['id']),
-                'jump_url': jump_url,
-                'title': article.get('title', '')}
-    return None
-
-
 def classify(dynamic):
     """
     判断单条动态是否为抽奖动态
@@ -86,35 +73,16 @@ def classify(dynamic):
     :return: 是抽奖 → 补充 is_lottery/conditions/deadline 字段并返回；否则返回 None
     """
     text = dynamic.get('text', '') or ''
+    status = dynamic.get('status') or {}
 
-    is_official = _has_official_lott(dynamic.get('additional'))
+    is_official = _has_official_lottery(status)
     hit_keyword = any(re.search(kw, text) for kw in config.LOTTERY_KEYWORDS)
 
     if not (is_official or hit_keyword):
         return None
 
-    # 代理抽奖账号：动态本身不是抽奖，动态里的链接（专栏）才是抽奖信息，
-    # 标记 is_proxy，由执行层解析专栏并参与其中的抽奖
-    if _is_proxy_account(dynamic.get('uname'), dynamic.get('uid')):
-        article = _extract_article(dynamic)
-        if not article:
-            logger.info('代理账号动态无专栏链接，跳过: dynamic_id=%s',
-                        dynamic.get('dynamic_id'))
-            return None
-        dynamic['is_lottery'] = True
-        dynamic['is_official_lott'] = False
-        dynamic['is_proxy'] = True
-        dynamic['article'] = article
-        # 代理抽奖固定动作：转发+点赞目标动态、关注目标 UP
-        dynamic['conditions'] = {'forward', 'like', 'follow'}
-        dynamic['deadline'] = _parse_deadline(article.get('title', ''))
-        logger.info('识别到代理抽奖(专栏): dynamic_id=%s article=%s 标题=%s',
-                    dynamic['dynamic_id'], article['id'], article['title'][:40])
-        return dynamic
-
     dynamic['is_lottery'] = True
     dynamic['is_official_lott'] = is_official
-    dynamic['is_proxy'] = False
     dynamic['conditions'] = _parse_conditions(text, is_official)
     dynamic['deadline'] = _parse_deadline(text)
     logger.info('识别到抽奖动态: uid=%s dynamic_id=%s 官方=%s 条件=%s',

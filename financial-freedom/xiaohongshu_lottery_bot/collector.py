@@ -4,7 +4,9 @@
     获取关注列表所有用户 → 探测新动态 → 拉取最新笔记
 关注列表双通道：优先 API，失败回退个人主页"关注"tab DOM 解析
 """
+import json
 import logging
+import os
 import random
 import re
 import time
@@ -20,6 +22,8 @@ logger = logging.getLogger(__name__)
 FOLLOWINGS_URL = '/api/im/web/users/following/all'
 # 用户笔记列表
 USER_NOTES_URL = '/api/sns/web/v1/user_posted'
+# 关注列表本地缓存（接口返回量缩水时兜底）
+FOLLOWINGS_CACHE = os.path.join(config.DATA_DIR, 'followings_cache.json')
 
 
 class RiskControlError(Exception):
@@ -41,10 +45,11 @@ class Collector:
         self.browser = browser
         self._risk_streak = 0
 
-    def _check_risk(self, data):
+    def _check_risk(self, data, retryable=True):
         """
         风控处理：单次 300011 冷却后重试一次；连续多次则熔断
-        :return: True 表示本次为风控失败（调用方可考虑重试）
+        :param retryable: 本次失败后是否还有重试机会（无则不再冷却）
+        :return: True 表示本次为风控失败
         """
         if data.get('code') == 300011:
             self._risk_streak += 1
@@ -52,24 +57,75 @@ class Collector:
                 raise RiskControlError(
                     f'连续 {self._risk_streak} 次触发风控(300011)，终止本轮任务，'
                     '请等待数小时或更换账号')
-            # 单次风控：冷却后允许调用方重试
-            cooldown = random.uniform(*config.RISK_COOLDOWN)
-            logger.warning('触发风控(300011)，冷却 %.0f 秒后重试', cooldown)
-            time.sleep(cooldown)
+            if retryable:
+                cooldown = random.uniform(*config.RISK_COOLDOWN)
+                logger.warning('触发风控(300011)，冷却 %.0f 秒后重试', cooldown)
+                time.sleep(cooldown)
             return True
         if data.get('code') == 0:
             self._risk_streak = 0
         return False
 
+    # ---------- 风控预检 ----------
+    def precheck_risk(self, sample_user_id):
+        """
+        探测前风控预检：用单个用户测一次 user_posted
+        :return: True 表示可继续（无风控）；False 表示风控中，应终止本轮
+        """
+        if not sample_user_id:
+            return True
+        data = self.browser.api_get(USER_NOTES_URL, {
+            'num': 1, 'cursor': '', 'user_id': sample_user_id,
+            'image_formats': 'jpg,webp,avif'})
+        if data.get('code') == 300011:
+            logger.error('风控预检失败：账号仍处于风控中(300011)，终止本轮任务。'
+                         '建议：1)在手机小红书 App 内正常使用一段时间（浏览/点赞）'
+                         '解除异常标记；2)等待 1-2 天后再试')
+            return False
+        return True
+
     # ---------- 关注列表 ----------
     def get_followings(self, self_uid):
-        """获取全部关注用户：API 优先，失败回退 DOM 解析"""
+        """
+        获取全部关注用户：API 优先，失败回退 DOM 解析；
+        接口结果为权威（用户取关后接口即真实状态），仅接口完全失败时用缓存兜底
+        """
         users = self._get_followings_api(self_uid)
         if not users:
             logger.info('API 获取关注列表失败，回退 DOM 解析')
             users = self._get_followings_dom(self_uid)
+        users = self._merge_with_cache(users)
         logger.info('关注列表共 %d 人', len(users))
         return users
+
+    @staticmethod
+    def _load_cache():
+        try:
+            with open(FOLLOWINGS_CACHE, encoding='utf-8') as f:
+                data = json.load(f)
+            if isinstance(data, list):
+                return data
+        except (OSError, ValueError):
+            pass
+        return []
+
+    def _merge_with_cache(self, users):
+        """
+        接口结果为权威：非空即更新缓存（用户取关属正常操作，不能以旧缓存覆盖）；
+        仅当接口完全失败（空列表）时，用上次缓存兜底并提示可能过时
+        """
+        if users:
+            try:
+                with open(FOLLOWINGS_CACHE, 'w', encoding='utf-8') as f:
+                    json.dump(users, f, ensure_ascii=False)
+            except OSError as e:
+                logger.warning('写关注列表缓存失败: %s', e)
+            return users
+        cached = self._load_cache()
+        if cached:
+            logger.warning('接口未返回关注列表，使用上次缓存 %d 人兜底（可能含已取关用户）',
+                           len(cached))
+        return cached
 
     def _get_followings_api(self, self_uid):
         """分页拉取全部关注用户（API 通道）"""
