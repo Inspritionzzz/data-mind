@@ -74,6 +74,7 @@ financial-freedom/bilibili_lottery_bot/data
 financial-freedom/xiaohongshu_lottery_bot/data
 financial-freedom/douyin_lottery_bot/data
 financial-freedom/weibo_lottery_bot/data
+python-tools/qcc_license_spider/data
 
 .webassets-cache
 
