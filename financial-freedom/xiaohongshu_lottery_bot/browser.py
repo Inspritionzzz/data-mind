@@ -106,6 +106,65 @@ class XhsBrowser:
         logger.error('登录超时')
         return False
 
+    # ---------- 账号管理 ----------
+    def get_user_info(self):
+        """
+        获取当前登录账号信息
+        :return: {'user_id','nickname'} 或 None（未登录）
+        """
+        try:
+            data = self.api_get('/api/sns/web/v2/user/me')
+            info = data.get('data') or {}
+            if data.get('code') == 0 and info.get('user_id') and not info.get('guest'):
+                return {'user_id': info.get('user_id'),
+                        'nickname': info.get('nickname', '')}
+        except Exception as e:
+            logger.warning('获取账号信息失败: %s', e)
+        return None
+
+    def logout(self):
+        """
+        退出登录：清理小红书登录态（Cookie + localStorage/sessionStorage）
+        保留浏览器设备指纹目录，降低下次登录的风控概率
+        :return: 是否成功退出（退出后 user/me 应为游客态）
+        """
+        try:
+            self.page.goto(config.EXPLORE_URL, wait_until='domcontentloaded')
+            time.sleep(2)
+        except Exception as e:
+            logger.warning('登出前访问页面失败: %s', e)
+        try:
+            # 清理页面存储（登录态缓存）
+            self.page.evaluate('''() => {
+                try { localStorage.clear(); } catch (e) {}
+                try { sessionStorage.clear(); } catch (e) {}
+                try {
+                    if (indexedDB.databases) {
+                        indexedDB.databases().then(dbs =>
+                            dbs.forEach(db => indexedDB.deleteDatabase(db.name)));
+                    }
+                } catch (e) {}
+            }''')
+            # 清理 Cookie（Playwright >= 1.43）
+            self.context.clear_cookies()
+            # 清完存储后刷新页面使游客态生效
+            self.page.goto(config.EXPLORE_URL, wait_until='domcontentloaded')
+            time.sleep(2)
+            if self.is_logged_in():
+                logger.error('登出后检测仍为登录态，清理可能不彻底')
+                return False
+            logger.info('已退出登录（登录态已清理）')
+            return True
+        except Exception as e:
+            logger.error('登出失败: %s', e)
+            return False
+
+    def switch_account(self):
+        """切换账号：退出当前登录 → 弹出扫码等待新账号登录"""
+        if not self.logout():
+            return False
+        return self.login()
+
     def get_self_user_id(self):
         """从页面侧边栏"我的"链接中提取自己的 user_id"""
         try:

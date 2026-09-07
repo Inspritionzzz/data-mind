@@ -162,11 +162,14 @@ class Executor:
                 logger.info('目标动态 %s 已参与过，跳过', target['dynamic_id'])
                 continue
 
-            # 对目标动态执行 转发 + 点赞 + 关注 UP
+            # 对目标动态执行 转发 + 点赞 + 评论 + 关注 UP
+            # （转发时无条件附加点赞+评论，提高中奖权重）
             actions = {}
             actions['forward'] = self.forward(target['dynamic_id'])
             self._sleep()
             actions['like'] = self.like(target['dynamic_id'])
+            self._sleep()
+            actions['comment'] = self.comment(target['dynamic_id'])
             self._sleep()
             actions['follow'] = self.follow(up['uid'])
             self._sleep()
@@ -205,14 +208,20 @@ class Executor:
             results['follow'] = self.follow(target['mid'])
             self._sleep()
         if 'forward' in conditions:
+            # 转发时无条件附加点赞+评论（即使抽奖未要求，也提高中奖权重）
             results['forward'] = self.forward(dynamic_id)
             self._sleep()
-        if 'comment' in conditions:
-            results['comment'] = self.comment(dynamic_id)
-            self._sleep()
-        if 'like' in conditions:
             results['like'] = self.like(dynamic_id)
             self._sleep()
+            results['comment'] = self.comment(dynamic_id)
+            self._sleep()
+        else:
+            if 'comment' in conditions:
+                results['comment'] = self.comment(dynamic_id)
+                self._sleep()
+            if 'like' in conditions:
+                results['like'] = self.like(dynamic_id)
+                self._sleep()
 
         success = all(results.values()) if results else False
         logger.info('参与 dynamic_id=%s 完成，结果=%s', dynamic_id, results)
