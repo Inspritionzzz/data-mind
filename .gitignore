@@ -70,11 +70,16 @@ instance/
 work/
 work/*.xlsx
 
-financial-freedom/bilibili_lottery_bot/data
-financial-freedom/xiaohongshu_lottery_bot/data
-financial-freedom/douyin_lottery_bot/data
-financial-freedom/weibo_lottery_bot/data
-python-tools/qcc_license_spider/data
+# 抽奖/爬虫机器人的运行时数据（cookie、数据库、日志、扫码图、浏览器登录态）
+financial-freedom/*_lottery_bot/data/
+python-tools/qcc_license_spider/data/
+
+# 敏感登录态/运行产物（任意位置的兜底规则）
+cookie*.json
+*.cookies
+qrcode*.png
+browser_profile/
+profile_debug.png
 
 .webassets-cache
 
