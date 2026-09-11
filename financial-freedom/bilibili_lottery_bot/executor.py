@@ -25,6 +25,7 @@ COMMENT_URL = 'https://api.bilibili.com/x/v2/reply/add'
 LIKE_URL = 'https://api.vc.bilibili.com/dynamic_like/v1/dynamic_like/thumb'
 FOLLOW_URL = 'https://api.bilibili.com/x/relation/modify'
 ARTICLE_URL = 'https://api.bilibili.com/x/article/view'
+DYNAMIC_DETAIL_URL = 'https://api.bilibili.com/x/polymer/web-dynamic/v1/detail'
 
 # 专栏中"【UP名】、【uid】"格式的抽奖条目
 ARTICLE_UID_RE = re.compile(r'【([^【】]{1,40})】、【(\d{5,20})】')
@@ -41,6 +42,8 @@ class Executor:
         self.notifier = notifier
         # 跨专栏的 UP 去重（工具人一天发多篇专栏，列出的 UP 高度重复）
         self._proxy_seen_ups = set()
+        # 动态真实评论区缓存 (type, oid)——评论区路由不随时间变化
+        self._comment_area_cache = {}
         # trust_env=False: B站为国内站点，不走系统代理，避免代理工具未开时连接被拒
         self.client = httpx.Client(headers=config.HEADERS, cookies=auth.cookies,
                                    timeout=20, trust_env=False)
@@ -72,14 +75,45 @@ class Executor:
         return ok
 
     def comment(self, dynamic_id, content=None):
-        """评论动态（动态的评论区 type=11，oid=动态id）"""
+        """
+        评论动态：先解析真实评论区再发表。
+        注意：不能直接用 type=11 + 动态id 评论——接口会返回 code=0 假成功，
+        但评论落入不存在的评论区，实际不可见。真实评论区路由：
+            纯文字/转发动态: type=17, oid=动态id
+            视频动态: type=1, oid=视频avid
+        需从动态 detail 接口的 basic.comment_type/comment_id_str 获取。
+        """
+        ctype, coid = self._resolve_comment_area(dynamic_id)
+        if not coid:
+            logger.warning('评论 dynamic_id=%s 失败: 无法解析真实评论区', dynamic_id)
+            return False
         content = content or random.choice(config.COMMENT_TEXTS)
         resp = self.client.post(COMMENT_URL, data={
-            'oid': dynamic_id, 'type': 11, 'message': content,
+            'oid': coid, 'type': ctype, 'message': content,
             'csrf': self.auth.csrf}).json()
         ok = resp.get('code') == 0
-        logger.info('评论 dynamic_id=%s -> %s', dynamic_id, '成功' if ok else resp.get('message'))
+        logger.info('评论 dynamic_id=%s (评论区 type=%s oid=%s) -> %s',
+                    dynamic_id, ctype, coid,
+                    '成功' if ok else resp.get('message'))
         return ok
+
+    def _resolve_comment_area(self, dynamic_id):
+        """查询动态真实评论区 (type, oid)，结果缓存避免重复请求"""
+        if dynamic_id in self._comment_area_cache:
+            return self._comment_area_cache[dynamic_id]
+        try:
+            resp = self.client.get(DYNAMIC_DETAIL_URL,
+                                   params={'id': dynamic_id}).json()
+        except Exception as e:
+            logger.warning('获取动态 %s 详情异常: %s', dynamic_id, e)
+            return None, None
+        if resp.get('code') != 0:
+            logger.warning('获取动态 %s 详情失败: %s', dynamic_id, resp.get('message'))
+            return None, None
+        basic = (((resp.get('data') or {}).get('item') or {}).get('basic') or {})
+        result = (basic.get('comment_type'), basic.get('comment_id_str'))
+        self._comment_area_cache[dynamic_id] = result
+        return result
 
     def like(self, dynamic_id):
         """点赞动态"""
